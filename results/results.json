@@ -1,0 +1,691 @@
+{
+ "generated": "2026-10-14 14:37",
+ "dataset": {
+  "name": "NSL-KDD",
+  "kind": "nsl",
+  "path": "data/synthetic_nsl",
+  "synthetic": true,
+  "binary": false,
+  "classes": [
+   "Normal",
+   "DoS",
+   "Probe",
+   "R2L",
+   "U2R"
+  ],
+  "n_train": 30000,
+  "n_test": 8000,
+  "train_counts": {
+   "Normal": 15555,
+   "DoS": 9079,
+   "Probe": 3287,
+   "R2L": 1479,
+   "U2R": 600
+  },
+  "test_counts": {
+   "Normal": 3590,
+   "DoS": 2402,
+   "Probe": 1033,
+   "R2L": 647,
+   "U2R": 328
+  },
+  "balanced_train": true,
+  "notes": []
+ },
+ "best": "Random Forest",
+ "models": {
+  "Random Forest": {
+   "accuracy": 0.92675,
+   "macro_precision": 0.9413789376261086,
+   "macro_recall": 0.8290732503477833,
+   "macro_f1": 0.8745201924763248,
+   "weighted_f1": 0.9229837567339365,
+   "detection_rate": 0.9235827664399093,
+   "false_alarm_rate": 0.001392757660167131,
+   "per_class": {
+    "Normal": {
+     "precision": 0.9140744518103009,
+     "recall": 0.9986072423398329,
+     "f1": 0.9544728434504792,
+     "support": 3590
+    },
+    "DoS": {
+     "precision": 0.9322169059011164,
+     "recall": 0.9733555370524563,
+     "f1": 0.9523421588594705,
+     "support": 2402
+    },
+    "Probe": {
+     "precision": 0.9521640091116174,
+     "recall": 0.8092933204259438,
+     "f1": 0.8749345892203035,
+     "support": 1033
+    },
+    "R2L": {
+     "precision": 0.9293598233995585,
+     "recall": 0.6506955177743431,
+     "f1": 0.7654545454545455,
+     "support": 647
+    },
+    "U2R": {
+     "precision": 0.9790794979079498,
+     "recall": 0.7134146341463414,
+     "f1": 0.8253968253968254,
+     "support": 328
+    }
+   },
+   "confusion": [
+    [
+     3585,
+     1,
+     1,
+     0,
+     3
+    ],
+    [
+     58,
+     2338,
+     6,
+     0,
+     0
+    ],
+    [
+     75,
+     114,
+     836,
+     7,
+     1
+    ],
+    [
+     138,
+     53,
+     34,
+     421,
+     1
+    ],
+    [
+     66,
+     2,
+     1,
+     25,
+     234
+    ]
+   ],
+   "train_seconds": 2.82,
+   "predict_ms_per_1k": 12.9,
+   "importances": [
+    [
+     "service",
+     0.10669775928044484
+    ],
+    [
+     "dst_host_count",
+     0.0837127826884187
+    ],
+    [
+     "dst_host_diff_srv_rate",
+     0.06621668642938068
+    ],
+    [
+     "same_srv_rate",
+     0.06184844418490229
+    ],
+    [
+     "dst_host_same_srv_rate",
+     0.05908215769713749
+    ],
+    [
+     "srv_diff_host_rate",
+     0.0573597433615377
+    ],
+    [
+     "dst_host_srv_diff_host_rate",
+     0.050935298785544286
+    ],
+    [
+     "count",
+     0.04938768615452832
+    ],
+    [
+     "dst_host_same_src_port_rate",
+     0.04708199216960392
+    ],
+    [
+     "dst_host_srv_count",
+     0.04537360900690919
+    ],
+    [
+     "dst_bytes",
+     0.04312634677665783
+    ],
+    [
+     "srv_count",
+     0.04217491065678738
+    ]
+   ],
+   "by_attack": [
+    {
+     "attack": "snmpguess",
+     "n": 224,
+     "recall": 0.36607142857142855,
+     "seen_in_train": false
+    },
+    {
+     "attack": "mscan",
+     "n": 272,
+     "recall": 0.4742647058823529,
+     "seen_in_train": false
+    },
+    {
+     "attack": "sqlattack",
+     "n": 85,
+     "recall": 0.5411764705882353,
+     "seen_in_train": false
+    },
+    {
+     "attack": "apache2",
+     "n": 359,
+     "recall": 0.9637883008356546,
+     "seen_in_train": false
+    },
+    {
+     "attack": "warezclient",
+     "n": 155,
+     "recall": 0.7161290322580646,
+     "seen_in_train": true
+    },
+    {
+     "attack": "loadmodule",
+     "n": 78,
+     "recall": 0.7692307692307693,
+     "seen_in_train": true
+    },
+    {
+     "attack": "buffer_overflow",
+     "n": 87,
+     "recall": 0.7701149425287356,
+     "seen_in_train": true
+    },
+    {
+     "attack": "rootkit",
+     "n": 78,
+     "recall": 0.782051282051282,
+     "seen_in_train": true
+    },
+    {
+     "attack": "ftp_write",
+     "n": 86,
+     "recall": 0.8255813953488372,
+     "seen_in_train": true
+    },
+    {
+     "attack": "guess_passwd",
+     "n": 182,
+     "recall": 0.8626373626373627,
+     "seen_in_train": true
+    },
+    {
+     "attack": "nmap",
+     "n": 205,
+     "recall": 0.8780487804878049,
+     "seen_in_train": true
+    },
+    {
+     "attack": "portsweep",
+     "n": 273,
+     "recall": 0.9084249084249084,
+     "seen_in_train": true
+    },
+    {
+     "attack": "back",
+     "n": 344,
+     "recall": 0.9534883720930233,
+     "seen_in_train": true
+    },
+    {
+     "attack": "teardrop",
+     "n": 249,
+     "recall": 0.9678714859437751,
+     "seen_in_train": true
+    },
+    {
+     "attack": "neptune",
+     "n": 849,
+     "recall": 0.9705535924617197,
+     "seen_in_train": true
+    },
+    {
+     "attack": "ipsweep",
+     "n": 283,
+     "recall": 0.9858657243816255,
+     "seen_in_train": true
+    },
+    {
+     "attack": "smurf",
+     "n": 601,
+     "recall": 0.9966722129783694,
+     "seen_in_train": true
+    }
+   ]
+  },
+  "XGBoost": {
+   "accuracy": 0.9145,
+   "macro_precision": 0.9019665765748011,
+   "macro_recall": 0.8123606826968658,
+   "macro_f1": 0.8474574732103637,
+   "weighted_f1": 0.9085861090566699,
+   "detection_rate": 0.9292517006802721,
+   "false_alarm_rate": 0.0052924791086350976,
+   "per_class": {
+    "Normal": {
+     "precision": 0.9196497553438063,
+     "recall": 0.9947075208913649,
+     "f1": 0.9557072126321424,
+     "support": 3590
+    },
+    "DoS": {
+     "precision": 0.9201101928374655,
+     "recall": 0.9733555370524563,
+     "f1": 0.9459842201092454,
+     "support": 2402
+    },
+    "Probe": {
+     "precision": 0.9069506726457399,
+     "recall": 0.7831558567279767,
+     "f1": 0.8405194805194806,
+     "support": 1033
+    },
+    "R2L": {
+     "precision": 0.8419753086419753,
+     "recall": 0.527047913446677,
+     "f1": 0.6482889733840305,
+     "support": 647
+    },
+    "U2R": {
+     "precision": 0.921146953405018,
+     "recall": 0.7835365853658537,
+     "f1": 0.8467874794069192,
+     "support": 328
+    }
+   },
+   "confusion": [
+    [
+     3571,
+     2,
+     0,
+     7,
+     10
+    ],
+    [
+     57,
+     2338,
+     6,
+     0,
+     1
+    ],
+    [
+     76,
+     91,
+     809,
+     50,
+     7
+    ],
+    [
+     123,
+     105,
+     74,
+     341,
+     4
+    ],
+    [
+     56,
+     5,
+     3,
+     7,
+     257
+    ]
+   ],
+   "train_seconds": 3.97,
+   "predict_ms_per_1k": 7.6,
+   "importances": [
+    [
+     "service",
+     0.37388953333720565
+    ],
+    [
+     "is_guest_login",
+     0.09598590433597565
+    ],
+    [
+     "num_failed_logins",
+     0.08825378865003586
+    ],
+    [
+     "num_root",
+     0.05502902716398239
+    ],
+    [
+     "flag",
+     0.04877872217912227
+    ],
+    [
+     "dst_host_count",
+     0.0314377099275589
+    ],
+    [
+     "num_file_creations",
+     0.028592826798558235
+    ],
+    [
+     "protocol_type",
+     0.02654591528698802
+    ],
+    [
+     "srv_diff_host_rate",
+     0.025785967707633972
+    ],
+    [
+     "num_shells",
+     0.02176685445010662
+    ],
+    [
+     "num_compromised",
+     0.019597114995121956
+    ],
+    [
+     "diff_srv_rate",
+     0.015898026525974274
+    ]
+   ],
+   "by_attack": [
+    {
+     "attack": "snmpguess",
+     "n": 224,
+     "recall": 0.0,
+     "seen_in_train": false
+    },
+    {
+     "attack": "mscan",
+     "n": 272,
+     "recall": 0.3713235294117647,
+     "seen_in_train": false
+    },
+    {
+     "attack": "sqlattack",
+     "n": 85,
+     "recall": 0.6941176470588235,
+     "seen_in_train": false
+    },
+    {
+     "attack": "apache2",
+     "n": 359,
+     "recall": 0.9637883008356546,
+     "seen_in_train": false
+    },
+    {
+     "attack": "warezclient",
+     "n": 155,
+     "recall": 0.7419354838709677,
+     "seen_in_train": true
+    },
+    {
+     "attack": "buffer_overflow",
+     "n": 87,
+     "recall": 0.7931034482758621,
+     "seen_in_train": true
+    },
+    {
+     "attack": "rootkit",
+     "n": 78,
+     "recall": 0.8076923076923077,
+     "seen_in_train": true
+    },
+    {
+     "attack": "ftp_write",
+     "n": 86,
+     "recall": 0.8255813953488372,
+     "seen_in_train": true
+    },
+    {
+     "attack": "loadmodule",
+     "n": 78,
+     "recall": 0.8461538461538461,
+     "seen_in_train": true
+    },
+    {
+     "attack": "guess_passwd",
+     "n": 182,
+     "recall": 0.8516483516483516,
+     "seen_in_train": true
+    },
+    {
+     "attack": "nmap",
+     "n": 205,
+     "recall": 0.8926829268292683,
+     "seen_in_train": true
+    },
+    {
+     "attack": "portsweep",
+     "n": 273,
+     "recall": 0.9047619047619048,
+     "seen_in_train": true
+    },
+    {
+     "attack": "back",
+     "n": 344,
+     "recall": 0.9534883720930233,
+     "seen_in_train": true
+    },
+    {
+     "attack": "teardrop",
+     "n": 249,
+     "recall": 0.9678714859437751,
+     "seen_in_train": true
+    },
+    {
+     "attack": "neptune",
+     "n": 849,
+     "recall": 0.9717314487632509,
+     "seen_in_train": true
+    },
+    {
+     "attack": "ipsweep",
+     "n": 283,
+     "recall": 0.9823321554770318,
+     "seen_in_train": true
+    },
+    {
+     "attack": "smurf",
+     "n": 601,
+     "recall": 0.9950083194675541,
+     "seen_in_train": true
+    }
+   ]
+  },
+  "Neural Network (MLP)": {
+   "accuracy": 0.8725,
+   "macro_precision": 0.8567454293273229,
+   "macro_recall": 0.7852358413618343,
+   "macro_f1": 0.8125862438270619,
+   "weighted_f1": 0.8677300192182393,
+   "detection_rate": 0.8639455782312925,
+   "false_alarm_rate": 0.020891364902506964,
+   "per_class": {
+    "Normal": {
+     "precision": 0.8541919805589308,
+     "recall": 0.979108635097493,
+     "f1": 0.9123945489941596,
+     "support": 3590
+    },
+    "DoS": {
+     "precision": 0.9308291342189647,
+     "recall": 0.8459616985845129,
+     "f1": 0.8863685932388222,
+     "support": 2402
+    },
+    "Probe": {
+     "precision": 0.85612968591692,
+     "recall": 0.8180058083252663,
+     "f1": 0.8366336633663366,
+     "support": 1033
+    },
+    "R2L": {
+     "precision": 0.8288508557457213,
+     "recall": 0.5239567233384853,
+     "f1": 0.6420454545454546,
+     "support": 647
+    },
+    "U2R": {
+     "precision": 0.8137254901960784,
+     "recall": 0.7591463414634146,
+     "f1": 0.7854889589905363,
+     "support": 328
+    }
+   },
+   "confusion": [
+    [
+     3515,
+     12,
+     5,
+     22,
+     36
+    ],
+    [
+     362,
+     2032,
+     6,
+     0,
+     2
+    ],
+    [
+     110,
+     35,
+     845,
+     31,
+     12
+    ],
+    [
+     83,
+     93,
+     125,
+     339,
+     7
+    ],
+    [
+     45,
+     11,
+     6,
+     17,
+     249
+    ]
+   ],
+   "train_seconds": 6.62,
+   "predict_ms_per_1k": 3.2,
+   "importances": null,
+   "by_attack": [
+    {
+     "attack": "snmpguess",
+     "n": 224,
+     "recall": 0.0,
+     "seen_in_train": false
+    },
+    {
+     "attack": "apache2",
+     "n": 359,
+     "recall": 0.13649025069637882,
+     "seen_in_train": false
+    },
+    {
+     "attack": "mscan",
+     "n": 272,
+     "recall": 0.5220588235294118,
+     "seen_in_train": false
+    },
+    {
+     "attack": "sqlattack",
+     "n": 85,
+     "recall": 0.5529411764705883,
+     "seen_in_train": false
+    },
+    {
+     "attack": "warezclient",
+     "n": 155,
+     "recall": 0.7548387096774194,
+     "seen_in_train": true
+    },
+    {
+     "attack": "rootkit",
+     "n": 78,
+     "recall": 0.782051282051282,
+     "seen_in_train": true
+    },
+    {
+     "attack": "guess_passwd",
+     "n": 182,
+     "recall": 0.8186813186813187,
+     "seen_in_train": true
+    },
+    {
+     "attack": "ftp_write",
+     "n": 86,
+     "recall": 0.8488372093023255,
+     "seen_in_train": true
+    },
+    {
+     "attack": "buffer_overflow",
+     "n": 87,
+     "recall": 0.8505747126436781,
+     "seen_in_train": true
+    },
+    {
+     "attack": "loadmodule",
+     "n": 78,
+     "recall": 0.8589743589743589,
+     "seen_in_train": true
+    },
+    {
+     "attack": "nmap",
+     "n": 205,
+     "recall": 0.8926829268292683,
+     "seen_in_train": true
+    },
+    {
+     "attack": "portsweep",
+     "n": 273,
+     "recall": 0.9084249084249084,
+     "seen_in_train": true
+    },
+    {
+     "attack": "back",
+     "n": 344,
+     "recall": 0.9273255813953488,
+     "seen_in_train": true
+    },
+    {
+     "attack": "teardrop",
+     "n": 249,
+     "recall": 0.9598393574297188,
+     "seen_in_train": true
+    },
+    {
+     "attack": "ipsweep",
+     "n": 283,
+     "recall": 0.9611307420494699,
+     "seen_in_train": true
+    },
+    {
+     "attack": "neptune",
+     "n": 849,
+     "recall": 0.9729093050647821,
+     "seen_in_train": true
+    },
+    {
+     "attack": "smurf",
+     "n": 601,
+     "recall": 0.9966722129783694,
+     "seen_in_train": true
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NIDS Dashboard</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#1d2330; --muted:#667085; --line:#e2e5ea; --accent:#2f5fd0;
+          --ok:#1a7f4b; --warn:#b26a00; --bad:#c62828; --bar:#2f5fd0; --bar2:#8aa4e8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#12151b; --card:#1b2029; --text:#e7eaf0; --muted:#98a2b3; --line:#2b3240; --accent:#6c93f0;
+            --ok:#4cc38a; --warn:#f0a640; --bad:#ff6b6b; --bar:#6c93f0; --bar2:#41538a; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  main { max-width:1100px; margin:0 auto; padding:24px 16px 56px; }
+  h1 { font-size:1.5rem; margin:0 0 2px; } h2 { font-size:1.1rem; margin:0 0 10px; }
+  .sub { color:var(--muted); margin:0 0 16px; }
+  .banner { background:rgba(178,106,0,.12); border:1px solid var(--warn); color:var(--text); padding:10px 14px;
+            border-radius:10px; margin-bottom:16px; display:none; }
+  .grid { display:grid; gap:14px; } .kpis { grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); margin-bottom:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .kpi .v { font-size:1.7rem; font-weight:700; } .kpi .l { color:var(--muted); font-size:.85rem; }
+  table { border-collapse:collapse; width:100%; } th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); font-size:.92rem; }
+  th { color:var(--muted); font-weight:600; } td.n { text-align:right; font-variant-numeric:tabular-nums; }
+  tr.best td { background:rgba(47,95,208,.10); font-weight:600; }
+  .wrap { overflow-x:auto; }
+  .brow { display:grid; grid-template-columns:170px 1fr 56px; gap:10px; align-items:center; margin:5px 0; font-size:.9rem; }
+  .track { height:12px; background:var(--line); border-radius:6px; overflow:hidden; } .fill { height:100%; background:var(--bar); }
+  .fill.alt { background:var(--bar2); } .fill.bad { background:var(--bad); } .fill.ok { background:var(--ok); }
+  .two { grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); }
+  select, button { font:inherit; padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--text); }
+  button.go { background:var(--accent); color:#fff; border:0; cursor:pointer; } button.go:disabled { opacity:.6; }
+  .cm td { text-align:center; min-width:62px; font-size:.85rem; } .cm th { text-align:center; }
+  .tag { font-size:.72rem; padding:2px 8px; border-radius:99px; border:1px solid var(--warn); color:var(--warn); margin-left:6px; }
+  .hit { color:var(--ok); font-weight:600; } .miss { color:var(--bad); font-weight:600; }
+  .muted { color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Network Intrusion Detection - Model Dashboard</h1>
+  <p class="sub" id="sub">Loading...</p>
+  <div class="banner" id="banner"></div>
+  <div class="grid kpis" id="kpis"></div>
+
+  <div class="card"><h2>Model comparison (test set)</h2>
+    <div class="wrap"><table id="cmp"></table></div>
+    <p class="muted">Detection rate = attacks caught. False alarm rate = normal traffic wrongly flagged. Macro-F1 treats every attack family equally, so rare attacks count as much as common ones.</p>
+    <div id="f1bars" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card"><h2>Look inside a model
+      <select id="pick" style="margin-left:10px"></select></h2>
+    <div class="grid two">
+      <div><h3 style="margin:0 0 6px;font-size:.95rem">Confusion matrix (rows = real, columns = predicted)</h3>
+        <div class="wrap"><table class="cm" id="cm"></table></div></div>
+      <div><h3 style="margin:0 0 6px;font-size:.95rem">Recall per class (share of each attack family caught)</h3><div id="recall"></div>
+        <h3 style="margin:14px 0 6px;font-size:.95rem">Most important features</h3><div id="feat"></div></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>Seen vs unseen attacks</h2>
+    <p class="muted">Unseen = attack types that appear only in the test set. This shows how well a model handles new attacks.</p>
+    <div id="attacks"></div>
+  </div>
+
+  <div class="card"><h2>Live replay</h2>
+    <button class="go" id="replay">Classify 15 random test records</button>
+    <div class="wrap" style="margin-top:12px"><table id="rtbl"></table></div>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+function el(tag, text, cls) { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; }
+function bar(label, value, max, cls, text) {
+  const r = el("div", undefined, "brow"); r.appendChild(el("div", label));
+  const t = el("div", undefined, "track"), f = el("div", undefined, "fill " + (cls || ""));
+  f.style.width = Math.max(0, Math.min(100, value / max * 100)) + "%"; t.appendChild(f); r.appendChild(t);
+  r.appendChild(el("div", text !== undefined ? text : (value * 100).toFixed(1) + "%")); return r;
+}
+const pct = v => (v * 100).toFixed(1) + "%";
+let R = null;
+
+async function init() {
+  const res = await fetch("/api/results");
+  if (!res.ok) { $("sub").textContent = "No results found. Run: python train.py"; return; }
+  R = await res.json();
+  const d = R.dataset, names = Object.keys(R.models), best = R.models[R.best];
+  $("sub").textContent = `${d.name} | ${d.n_train} training / ${d.n_test} test records | trained ${R.generated}` + (d.binary ? " | binary mode" : "");
+  if (d.synthetic) { $("banner").style.display = "block";
+    $("banner").textContent = "These results use SYNTHETIC practice data. They show that the pipeline works, not real-world accuracy. Retrain on real NSL-KDD or CICIDS2017 (see README, Step 8)."; }
+  [["Best model", R.best, "highest macro-F1"], ["Detection rate", pct(best.detection_rate), "attacks caught (best model)"],
+   ["False alarm rate", pct(best.false_alarm_rate), "normal traffic flagged (best model)"],
+   ["Macro-F1", best.macro_f1.toFixed(3), "average over attack families"]].forEach(k => {
+    const c = el("div", undefined, "card kpi"); c.appendChild(el("div", k[1], "v")); c.appendChild(el("div", k[0] + " - " + k[2], "l")); $("kpis").appendChild(c); });
+
+  const head = ["Model", "Macro-F1", "Accuracy", "Detection rate", "False alarms", "Train time (s)", "Predict ms / 1k rows"];
+  const tr = el("tr"); head.forEach(h => tr.appendChild(el("th", h))); $("cmp").appendChild(tr);
+  names.forEach(n => { const m = R.models[n], r = el("tr"); if (n === R.best) r.className = "best";
+    r.appendChild(el("td", n));
+    [m.macro_f1.toFixed(3), pct(m.accuracy), pct(m.detection_rate), pct(m.false_alarm_rate), m.train_seconds, m.predict_ms_per_1k]
+      .forEach(v => r.appendChild(el("td", v, "n"))); $("cmp").appendChild(r);
+    $("f1bars").appendChild(bar(n, m.macro_f1, 1, n === R.best ? "" : "alt", m.macro_f1.toFixed(3))); });
+
+  names.forEach(n => { const o = el("option", n); o.value = n; $("pick").appendChild(o); });
+  $("pick").value = R.best; $("pick").onchange = () => inside($("pick").value); inside(R.best);
+  $("replay").onclick = replay;
+}
+
+function inside(name) {
+  const m = R.models[name], cls = R.dataset.classes;
+  const cm = $("cm"); cm.replaceChildren();
+  const h = el("tr"); h.appendChild(el("th", "real \\ predicted")); cls.forEach(c => h.appendChild(el("th", c))); cm.appendChild(h);
+  m.confusion.forEach((row, i) => { const tot = row.reduce((a, b) => a + b, 0) || 1, tr = el("tr"); tr.appendChild(el("th", cls[i]));
+    row.forEach((v, j) => { const td = el("td", v); const share = v / tot;
+      td.style.background = `rgba(${i === j ? "26,127,75" : "198,40,40"},${(share * 0.75).toFixed(2)})`; td.title = pct(share) + " of real " + cls[i]; tr.appendChild(td); });
+    cm.appendChild(tr); });
+  $("recall").replaceChildren(); cls.forEach(c => { const p = m.per_class[c];
+    $("recall").appendChild(bar(c + " (n=" + p.support + ")", p.recall, 1, p.recall < 0.7 ? "bad" : "ok")); });
+  $("feat").replaceChildren();
+  if (m.importances) { const mx = m.importances[0][1]; m.importances.slice(0, 8).forEach(([f, v]) => $("feat").appendChild(bar(f, v, mx, "alt", v.toFixed(3)))); }
+  else $("feat").appendChild(el("div", "Feature importance is only available for tree models (Random Forest, XGBoost).", "muted"));
+  $("attacks").replaceChildren();
+  m.by_attack.forEach(a => { const row = bar(a.attack + " (n=" + a.n + ")", a.recall, 1, a.recall < 0.7 ? "bad" : "ok");
+    if (!a.seen_in_train) row.firstChild.appendChild(el("span", "unseen", "tag")); $("attacks").appendChild(row); });
+}
+
+async function replay() {
+  const b = $("replay"); b.disabled = true;
+  try {
+    const res = await fetch("/api/replay?n=15"), d = await res.json(), t = $("rtbl"); t.replaceChildren();
+    if (!res.ok) { t.appendChild(el("tr")).appendChild(el("td", d.error || "error")); return; }
+    const h = el("tr"); ["Real attack", "Real class", ...d.models, "Record"].forEach(x => h.appendChild(el("th", x))); t.appendChild(h);
+    d.rows.forEach(r => { const tr = el("tr"); tr.appendChild(el("td", r.attack)); tr.appendChild(el("td", r.truth));
+      d.models.forEach(m => { const ok = r.preds[m] === r.truth; tr.appendChild(el("td", (ok ? "OK " : "MISS ") + r.preds[m], ok ? "hit" : "miss")); });
+      tr.appendChild(el("td", r.info, "muted")); t.appendChild(tr); });
+  } finally { b.disabled = false; }
+}
+init();
+</script>
+</body>
+</html>
